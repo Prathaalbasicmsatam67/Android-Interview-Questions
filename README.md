@@ -5,8 +5,8 @@
 
 # Questions List
 
-Why kotlin is better
-Null check
+Why kotlin is better 
+Null check 
 Data class,sealed class
 Inline, extension, higher order function
 Apply, let , also
