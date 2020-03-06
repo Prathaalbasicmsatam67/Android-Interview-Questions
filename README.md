@@ -15,53 +15,99 @@ What is the difference between using == and equals on a string?
 What does the static word mean in Java?
 
 When is a static block run?
+
 Can we use static and abstract together? 
+
 What are these final, finally and finalize?
+
 What is the difference between an Integer and int?
+
 Differences between abstract classes and interfaces?
+
 Can you reduce scope of overridden method? 
+
 What is telescoping constructors?
+
 What is name mangling? 
+
 What is Marker and Functional Interface? 
+
 What is covariant return type? 
+
 How to create immutable class?
+
 Difference between deep and shallow copy? 
+
 What is anonymous classes?
+
 GC process
+
 What are access modifiers in Java?
+
 What the difference between local, instance and class variables?
+
 Is it possible to access private member of Java class?
+
 What are transient and volatile modifiers?
+
 Generics in Java
+
 Is Java pass by value or pass by reference?
+
 Difference between Abstraction and Encapsulation, support with an example
+
 What is static and dynamic dependency injection? 
+
 What are Exceptions in Java? Difference between Checked and Unchecked Exceptions
+
 What is a ThreadPoolExecutor? Can this ever cause a memory leak? If yes, how can you prevent it?
+
 What are the concurrent atomic classes in Java? What are their advantages?
+
 Difference between method overloading and overriding
+
 What's better: Composition or Inheritance and why?
+
 What is String pooling? What's its impact on GC?
-What are anonymous inner classes in Java? How are they useful? Do they have any negative implications on the Memory? What is Java 8 Lambdas? 
+
+What are anonymous inner classes in Java? How are they useful? Do they have any negative implications on the Memory? What is 
+Java 8 Lambdas? 
+
 How to implement multiple inheritance using interface vs composition? 
+
 What is JNI, How it works?
+
 What is Kotlin? Is it faster than Java?
+
 How interface is different in Java 1.8?
+
 
 Collection, Data Structures, Algorithms
 
 Collections framework
+
 Difference between List, Set, Queue, Deque, Array, Stack, Map
+
 When to use ArrayList vs LinkedList?
+
 When to use HashTable vs HashMap vs TreeMap vs LinkedHashMap?
+
 How HashMap works in Java? Contract between hashcode and equals
+
 What are fail-safe & fail-fast Iterators in Java?
+
 What’s the difference between an Enumeration and an Iterator?
+
 How to implement Arraylist using Array?
+
 Which's better: HashMap, ArrayMap vs SparseArray types and why?
+
 Difference between PriorityQueue vs BlockingQueue, When to use them?
+
 What is Binary Search Tree? 
+
 What is Space and Time Complexity of Bubble Sort? 
+
 
 Android
 
