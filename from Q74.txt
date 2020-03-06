@@ -1,0 +1,18 @@
+Q74)What is FAB? How do you specify the gravity for FAB? 
+FloatingActionButton is used for adding something new like create dvir
+gravity doesn't working.it is the expected behaviour unless you wrap your content around a CoordinatorLayout.
+
+Q76)Difference between ViewGroup vs View
+ViewGroup is the invisible container. It holds View and ViewGroup
+For example, LinearLayout is the ViewGroup that contains Button(View), and other Layouts also.
+
+77)What is 9-patch image? 
+9 patch image are resizeable images.Used in messaging boxes.
+
+84)What is significance of res (Resources) folder?
+To store images,string,xml
+
+Q85)Steps to add support for additional language e.g., hindi in your app.  
+runs based on language selected in device
+
+create values folder in english and hindi(values-hi where hi is iso country code) and keep a strings.xml file in that folder

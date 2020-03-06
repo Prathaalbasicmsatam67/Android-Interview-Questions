@@ -1,0 +1,423 @@
+Q1) Android architecture
+
+from below (krela)
+Layer 1)Linux kernel - wifi driver,camera driver,USB driver
+Layer 2)Android runtime - dvm and core libraries
+Layer 2)Libraries - Sqlite,android.view,android.util
+Layer 3)Application Framework - Activity Manager,Resource Manager,Notifications Manager
+Layer 4)Applications - Our application
+
+Q2)What are main components of Android?
+
+1)Activities
+2)Services
+3)Broadcast Receivers
+4)Content Providers
+
+Q3)Purpose of AndroidManifest file
+
+The AndroidManifest.xml file contains information of your package, including components of the application such as activities, services, 
+broadcast receivers, content providers etc.
+
+For providing permissions
+Which activity for launching
+
+Q4)Activity life cycle, difference between onPause and onStop
+
+onCreate - called when activity is first created.
+onStart - visible to the user.
+OnResume - interact with the user.
+onPause - called when user goes away from activity.When dialog is shown only onPause is called,onStop not called
+onStop - called when user goes away from activity
+onDestroy - activity is destroyed.
+
+OnRestart - Called after onStop() when the current activity is being re-displayed to the user (the user has navigated back to it). 
+It will be followed by onStart() and then onResume().
+
+Back Button press
+Current activity : finish() called that means onPause,onStop,onDestroy called
+Previous activity : OnRestart,onStart,OnResume called
+
+Home button press 
+onPause and onStop is called
+
+Q5)Activity Launch Modes
+Task -> a stack of activities
+Suppose in activity b we set Launch Modes
+
+1)Standard 
+Activity called like a -> b -> c -> d (a,b,c,d representing activities)
+Task will be like(from below) a,b,c,d 
+
+2)SingleTop : If activity on top new instance will not be created,(onNewIntent() method called)
+case 1:Activity called like a -> b -> b
+Task will be like(from below) a,b
+
+Case 2:Activity called like a -> b -> c -> b -> b
+Task will be like(from below) a,b,c,b
+
+3)SingleTask : between 2 same activities with Launch Mode as SingleTask all other activities are popped off
+Activity called like a -> b -> c -> d -> b
+Task will be like(from below) a,b
+
+4)singleInstance : a separate task created for that activity
+Activity called like a -> b -> c -> d
+Task 1 will be like(from below) a,c,d
+Task 2 will be like(from below) b
+
+Q6)Difference between RecyclerView and ListView?
+1)RecylerView has inbuilt ViewHolder, doesn't need to implement our own like in listView
+2)In a ListView, the only type of view available is the vertical ListView. 
+There is no official way to even implement a horizontal ListView. Now using a RecyclerView, we can using layout manager
+3)RecyclerView doesn't have onItemClickListner
+4)No divider in RecylerView
+5)Cursor adapter not supported in RecylerView
+
+
+Q7)Why to use Fragment?
+The benefit is reuse. You can reuse a fragment in different activities.If we use fragments in place of activity,the size of app decrease considerably.
+They were added to the API when people started wanting easier ways to take advantage of the extra real estate on a tablet.
+
+Q8)Fragment life cycle
+onAttach - Reference to activity we get here
+onCreate - initialize essential components of the fragment
+onCreateView - To draw a UI for fragment,findViewById done here
+onActivityCreated - Activity created,use UI of activity
+onStart - visible to the user.
+OnResume - interact with the user.
+
+onPause - user is leaving the fragment
+onStop -  no longer visible.
+onDestroyView - view will destroy
+onDestroy - allows the fragment to do final clean up of fragment state.
+onDetach - no longer associated with its activity.
+
+Q9)Difference between FragmentPagerAdapter and FragmentStatePagerAdapter?
+
+FragmentStatePagerAdapter : FragmentStatePagerAdapter only stores the savedInstanceState of fragments, and destroys all the fragments when they lose focus.
+FragmentPagerAdapter : When your fragment is no longer needed, FragmentPagerAdapter calls detach(Fragment).
+
+Transaction detach(Fragment fragment) : onPause,onStop,onDestroyView called.Its like hiding UI so onDetach not called.
+Transaction attach(Fragment fragment) : onCreate,onActivityCreated,onStart,OnResume called.OnAttach not called as it is already associated with activity
+
+setRetainInstance(true) : onDestroy and onCreate not called on rotation
+
+Q10) Is it possible to have Activity without UI?
+Yes,but better to use services for these things.
+
+Q11) Is it possible to have fragment without UI?
+Yes,for handling asynctask rotation we use this by making asynctask in fragment instead of activity
+
+http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html
+public class MainActivity extends Activity implements TaskFragment.TaskCallbacks {
+
+  private static final String TAG_TASK_FRAGMENT = "task_fragment";
+
+  private TaskFragment mTaskFragment;
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.main);
+
+    FragmentManager fm = getFragmentManager();
+    mTaskFragment = (TaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
+
+    // If the Fragment is non-null, then it is currently being
+    // retained across a configuration change.
+    if (mTaskFragment == null) {
+      mTaskFragment = new TaskFragment();
+      fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
+    }
+
+    // TODO: initialize views, restore saved state, etc.
+  }
+
+  // The four methods below are called by the TaskFragment when new
+  // progress updates or results are available. The MainActivity 
+  // should respond by updating its UI to indicate the change.
+
+  @Override
+  public void onPreExecute() { ... }
+
+  @Override
+  public void onProgressUpdate(int percent) { ... }
+
+  @Override
+  public void onCancelled() { ... }
+
+  @Override
+  public void onPostExecute() { ... }
+}
+
+public class TaskFragment extends Fragment {
+
+  /**
+   * Callback interface through which the fragment will report the
+   * task's progress and results back to the Activity.
+   */
+  interface TaskCallbacks {
+    void onPreExecute();
+    void onProgressUpdate(int percent);
+    void onCancelled();
+    void onPostExecute();
+  }
+
+  private TaskCallbacks mCallbacks;
+  private DummyTask mTask;
+
+  /**
+   * Hold a reference to the parent Activity so we can report the
+   * task's current progress and results. The Android framework 
+   * will pass us a reference to the newly created Activity after 
+   * each configuration change.
+   */
+  @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    mCallbacks = (TaskCallbacks) activity;
+  }
+
+  /**
+   * This method will only be called once when the retained
+   * Fragment is first created.
+   */
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    // Retain this fragment across configuration changes.
+    setRetainInstance(true);
+
+    // Create and execute the background task.
+    mTask = new DummyTask();
+    mTask.execute();
+  }
+
+  /**
+   * Set the callback to null so we don't accidentally leak the 
+   * Activity instance.
+   */
+  @Override
+  public void onDetach() {
+    super.onDetach();
+    mCallbacks = null;
+  }
+
+  /**
+   * A dummy task that performs some (dumb) background work and
+   * proxies progress updates and results back to the Activity.
+   *
+   * Note that we need to check if the callbacks are null in each
+   * method in case they are invoked after the Activity's and
+   * Fragment's onDestroy() method have been called.
+   */
+  private class DummyTask extends AsyncTask<Void, Integer, Void> {
+
+    @Override
+    protected void onPreExecute() {
+      if (mCallbacks != null) {
+        mCallbacks.onPreExecute();
+      }
+    }
+
+    /**
+     * Note that we do NOT call the callback object's methods
+     * directly from the background thread, as this could result 
+     * in a race condition.
+     */
+    @Override
+    protected Void doInBackground(Void... ignore) {
+      for (int i = 0; !isCancelled() && i < 100; i++) {
+        SystemClock.sleep(100);
+        publishProgress(i);
+      }
+      return null;
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... percent) {
+      if (mCallbacks != null) {
+        mCallbacks.onProgressUpdate(percent[0]);
+      }
+    }
+
+    @Override
+    protected void onCancelled() {
+      if (mCallbacks != null) {
+        mCallbacks.onCancelled();
+      }
+    }
+
+    @Override
+    protected void onPostExecute(Void ignore) {
+      if (mCallbacks != null) {
+        mCallbacks.onPostExecute();
+      }
+    }
+  }
+}
+
+Q12)Which Lifecycle methods are guaranteed to be called in case of app crash?
+
+public class MyApplication extends Application
+{
+  public void onCreate ()
+  {
+    // Setup handler for uncaught exceptions.
+    Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
+    {
+      @Override
+      public void uncaughtException (Thread thread, Throwable e)
+      {
+        handleUncaughtException ();
+      }
+    });
+  }
+}
+
+Q13)When to use Services, Started vs Bound service and IntentService?
+Services are used for long running operation.The service runs in the background indefinitely even if application is destroyed.
+Runs on UI thread
+Started : A service is started when an application component, such as an activity, starts it by calling startService().
+Once started, a service can run in the background indefinitely, even if the component that started it is destroyed.To end it call stopService(intent) or stopSelf()
+
+Important method : onStartcommand
+
+Bound : A service is bound when an application component binds to it by calling bindService().
+A bound service offers a client-server interface that allows components to interact with the service, send requests, get results
+Important method : onBind
+
+IntentService runs on different thread.Its get destroyed on its own.
+Important method : onHandleIntent
+
+Q16)What is Serializable and why Android uses Parcelable?
+Serialization in java is a mechanism of writing the state of an object into a byte stream.
+Our object must be either Serializable or Parcelable to move object from 1 activity to another.
+
+public class Person implements Serializable {
+}
+Diadvantage : lots of additional objects are created along the way and result is poor performance.In parcelable we write custom code used for serialisation.Default Serializable approach is slower than Parcelable.
+
+public class Person implements Parcelable {
+    private String firstName;
+
+    public Person(String firstName) {
+        this.firstName = firstName;  
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+	
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.firstName);
+    }
+
+	/**
+    * Retrieving Student data from Parcel object
+    * This constructor is invoked by the method createFromParcel(Parcel source) of
+    * the object CREATOR
+    **/
+    protected Person(Parcel in) {
+        this.firstName = in.readString();
+    }
+	//must create this class
+    public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
+        @Override
+        public Person createFromParcel(Parcel source) {
+            return new Person(source);
+        }
+
+        @Override
+        public Person[] newArray(int size) {
+            return new Person[size];
+        }
+    };
+}
+
+Q17)Difference between Implicit and Explicit Intent
+Implicit : we do not know the thing we are going to call.Like email activity
+Explicit Intent: we know the thing we are going to call like login activity
+
+Q18)What is the function of an intent-filter?
+Intent-filter tells(advertises) what actions,data,category an activity,services can handle.Package manager compares the actions,data of the intent with the activity.
+If package manager finds one it calls that.If many it lets us choose
+
+Example: Intent emailIntent = new Intent(Intent.ACTION_SEND);//action
+emailIntent.setData(Uri.parse("mailto:"));//data
+
+In case of broadcast receivers all the broadcast receivers are called one by one
+
+Q19)What is Deep Linking? How does it work?
+From an external source(url) opening a specific page of the app if app is installed.If not open url in browser.Example 
+
+Q20)What can be used for background processing in Android?
+1)Threads
+Communicate between UI thread and background thread using handler by using post() method or runOnUi() method
+2)AsyncTask
+onPreExecute,doInBackground,onPostExecute
+
+From api 13
+Android executes AsyncTask tasks in sequence by default(serially).
+
+To run it in parallel
+imageLoader.executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR, "http://url.com/image.png" );
+
+3)Services
+
+Q21)How to communicate between background thread and main thread?
+Communicate between UI thread and background thread using handler by using post() method or runOnUi() method
+
+Q23)What is a JobScheduler? 
+
+https://code.tutsplus.com/tutorials/using-the-jobscheduler-api-on-android-lollipop--cms-23562
+
+Similar to alarm manager.Api level 21.Can be used 
+if internet present,if connected to power supply,run every 20 minutes(constrains).
+
+Steps:
+1)Define job constrains with JobInfo.Builder class.
+2)build method from JobInfo.Builder class to create job info object that contains all constrains
+
+scheduleJob(Context context) {
+        ComponentName serviceComponent = new ComponentName(context, TestJobService.class);
+        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+        builder.setPeriodic(3 * 1000); 
+		 builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+		 builder.setRequiresCharging(true).build();
+        
+        JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
+        jobScheduler.schedule(builder.build());
+    }
+
+
+3)class which extends Service.
+JobScheduler.schedule() calls the service class.
+public class TestJobService extends JobService {
+    @Override
+    public boolean onStartJob(JobParameters params) {
+        //asynctask here
+        return true;//return true to say its syncronous.//Runs on UI thread...so call handler or something 
+    }
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        return true;
+    }
+}
+
+Q24)What is Direct Boot? 
+The phone unlocks and works only when we enter the passcode.As a result,
+if in night we sleep and our phone reboots we may loose things like alarm if we dont unlock the phone.So from 7.0 we can set directbootaware as true
+to some apps like alarm so that they work even if we not put the passcode and open after reboot.
+
+
+
+
+

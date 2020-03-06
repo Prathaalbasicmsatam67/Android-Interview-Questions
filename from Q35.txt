@@ -1,0 +1,350 @@
+﻿Q35)How often Sqlite database should be closed inside app? 
+open the whole time, and close it in some lifecycle method such as onStop or onDestroy
+
+Q36)How can we optimize Sqlite queries?
+1)NOT get all columns from table.Get only required once.
+2)Use views.Create views for queries with lot of joins
+
+Q37)Can we create column with Date-time or Date type in Sqlite? 
+You can use a text field to store dates within SQLite.
+Storing dates in UTC format, the default if you use datetime('now') (yyyy-MM-dd HH:mm:ss) will then allow sorting by the date column.
+
+Best way is to store in long in utc using Datetime.now();
+
+Q38)What are content providers? Are they thread-safe? How to create your own content providers? 
+A content provider component supplies data from one application to others on request. Such requests are handled by the methods of the ContentResolver class. 
+A content provider can use different ways to store its data and the data can be stored in a database, in files, or even over a network.
+
+http://www.coderzheaven.com/2013/09/22/write-custom-content-provider-android-sample-application-custom-content-provider/
+
+ContentProvider is not thread safe.SQLiteDatabase is synchronized by default.So  not necessary to make every method synchronized
+
+
+
+Q41)Why Support Library was introduced in Android?
+The Android Support Library package is a set of code libraries that provide backward-compatible versions of Android framework APIs.
+Example : fragments(v4)
+
+Q42)What is Android Data Binding? 
+View is tied to a Model. When the data in the Model changes it is automatically reflected in the View or vice versa
+
+Step 1)In app’s build.gradle => dataBinding {enabled = true}
+
+Q43)How to prevent ANR? What the max time for which you can block the UI thread?
+ANR : Application Not Responding. Android systems shows this dialog, if application is performing too much of task on main thread.
+If the main thread blocks for approximately five seconds, then ANR dialog
+
+To prevent it
+1)Perform all you long running network or database operation in separate thread
+2)If you have too much of background tasks, then take it off the UI thread. You may use IntentService
+
+Q45)What are different ways to store data in your Android app?
+1)Shared Preferences : name-value pairs.
+2)Internal Storage :these files are private and are accessed by only your application and get deleted , when user delete your application.
+
+openFileOutput is specifically used for file writing into internal storage only.
+FileOutputStream allows you to write to both internal and external storage as well
+
+FileOutputStream fos = openFileOutput("test.txt", Context.MODE_PRIVATE);
+or
+file = new File(getCacheDir(), "MyCache");
+outputStream = new FileOutputStream(file);
+outputStream.write(content.getBytes());
+outputStream.close();
+
+getCacheDir() for cache
+getFilesDir() for internal storage
+
+file = new File(getCacheDir(), "MyCache"); // Pass getFilesDir() and "MyFile" to read file
+input = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+String line;
+StringBuffer buffer = new StringBuffer();
+while ((line = input.readLine()) != null) {
+    buffer.append(line);
+}
+
+3)External Storage : It does not mean SD card only now days phone has external and internal memory both in its own memory
+getExternalCacheDir() for cache
+getExternalFilesDir() for external storage but deleted once app deleted(private files)
+
+getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURE) for external storage but NOT deleted once app deleted(public files)
+
+4)SQLite database.
+
+Q46)What is the DVM and ART? Why DVM over JVM?
+
+1)In case of Dalvik, whenever you touch an app icon to open it, the necessary dex files gets converted into their equivalent native codes. The app will only start working when this compilation is done. 
+So, the app is unresponsive until this finishes.
+Moreover, this process is repeated every single time you open an app wasting CPU cycles and valuable battery juice.
+
+But in case of ART, whenever you install an app, all the dex files gets converted once and for all. 
+So the installation takes some time and the app takes more space than in Dalvik, but the performance is massively improved and battery life is smartly conserved.
+
+2)The space used by apps being run on ART is much more than that of Dalvik
+3)ART is extremely fast 
+
+dvm vs jvm
+
+java source code -> java byte code(.class) -> jvm
+
+java source code -> java byte code(.class) -> dx compiler(single .dex)
+.dex is a optimised version.There is constant pool for every application(String)
+
+Q47 and Q48)What is a intent,PendingIntent and Sticky Intent?
+An Intent is basically a message that is passed between components
+
+A Pending Intent is a token you give to some app(Alarm manager) to perform an action on your apps
+ behalf irrespective of whether your application process is alive or not.
+ 
+ Example : Alarm manager using broadcast receiver
+ PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 234324243, intent, 0);  
+ AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);  
+ alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()  + (i * 1000), pendingIntent);  
+ 
+Sticky Intent : 
+
+Q50)How would you preserve Activity state, handle AsyncTasks during a screen rotation? 
+@Override
+public void onSaveInstanceState(Bundle savedInstanceState) {}
+
+@Override
+public void onRestoreInstanceState(Bundle savedInstanceState) {} or onCreate(){}
+
+handle AsyncTasks during a screen rotation : using fragments setRetainInstance(true);
+
+Q51)What is apk file? How to reduce size of apk? 
+java source code -> java byte code(.class) -> dx compiler(single .dex)
+The .dex file and the resources from your application, such as images and layouts, are then compressed into a zip-like file called an Android Package or .apk file. 
+This is done with the Android Asset Packaging Tool or aapt:
+
+Q53)How android supports multiple resolutions and orientations?
+use different layout like layout-land,layout-port,layout-sw600dp,layout-sw600dp-land,similarly for 480 and 720
+use different drawable also.
+
+Q54)How to make sure that your application is compatible with older versions of android?
+Specify Minimum and Target API Levels
+Minimum api level : how much we will support.
+Target api level : in which level we have targeted.
+Compile api level : The version of android your IDE uses to make your app when you publish a .apk file
+maxSdkVersion : maximum API Level on which the application is designed to run.
+
+Using the Support Library in a project 
+
+Q56)Loader
+load data from a content provider or other data source for display in an Activity or Fragment using a separate thread.Handles configuration changes by itself
+Loaders persist and cache results across configuration changes to prevent duplicate queries.
+Loaders can implement an observer to monitor for changes in the underlying data source. 
+For example, CursorLoader automatically registers a ContentObserver to trigger a reload when data changes.
+
+Q57)what is strict mode in android
+StrictMode is a developer tool which detects things you might be doing by accident and brings them to your attention so you can fix them.
+like not closing cursor or object.Run this in debug mode.Calling network operation on UI.
+
+if (DEVELOPER_MODE) {
+         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                 .detectDiskReads()
+                 .detectDiskWrites()
+                 .detectNetwork()   // or .detectAll() for all detectable problems
+                 .penaltyLog()
+                 .build());
+         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                 .detectLeakedSqlLiteObjects()
+                 .detectLeakedClosableObjects()
+                 .penaltyLog()
+                 .penaltyDeath()
+                 .build());
+     }
+
+2 methods penaltyLog - log is printed if this occurs
+penaltyDeath - app crashes
+
+Q58)what is Lint?
+Used to check hard coded string,unused import, call of deprecated methods.
+
+Q59)What is the ViewHolder pattern? Why should we use it?
+ViewHolder pattern is to reuse views by using convertView in listview and to reduce the call of findViewByID.
+ViewHolder was used to reduce the call of findViewByID.
+
+in getView
+1st view (0,null,parent)
+2nd view (0,null,parent)
+3rd view (0,null,parent)
+4th view (0,convertView,parent)//1st row is reused.
+
+static class ViewHolder {
+    private TextView nameTextView;
+}
+
+ @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            convertView = mInflater.inflate(R.layout.list_entry, null);
+            holder = new ViewHolder();
+            holder.nameTextView = (TextView) convertView.findViewById(R.id.person_name);
+            convertView.setTag(holder);
+        }
+        else {
+            holder = (ViewHolder) convertView.getTag();
+        }      
+        holder.nameTextView.setText(getItem(position).getName());
+        return convertView;
+    }
+
+Q60)What is the best way to update the screen periodically?
+Best way is to Use a Handler and its postDelayed method in UI 
+final Handler handler = new Handler()
+handler.postDelayed( new Runnable() {
+
+    @Override
+    public void run() {
+        //update UI
+        handler.postDelayed( this, 60 * 1000 );
+    }
+}, 60 * 1000 );
+
+You can also use timer or start a new thread like this
+
+Thread t = new Thread() {
+
+  @Override
+  public void run() {
+    try {
+      while (!isInterrupted()) {
+        Thread.sleep(1000);
+        runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            // update TextView here!
+          }
+        });
+      }
+    } catch (InterruptedException e) {
+    }
+  }
+};
+
+
+Q64)What’s Looper, Handler and HandlerThread?
+
+Looper : It is used to execute the messages from activity,service and broadcast receiver one by one in message queue.
+Handler : A Handler allows you to send(msg from diff thread) and process Message and Runnable(in own thread's MessageQueue) objects associated with a thread's MessageQueue.
+Each Handler instance is associated with a single thread
+Handler handler = new Handler()//in ui thread
+Thread t = new Thread() {
+  @Override
+  public void run() {
+   handler.post(Runnable r)
+		or
+	handler.sendMessage(Message m)//sends message to the thread in which we create handle
+  }
+};
+
+HandlerThread : thread that has a looper
+
+public class MainActivity extends AppCompatActivity {
+
+    private Handler handler = new Handler();
+    private MyHandlerThread myHandlerThread;
+
+    Button btnStart;
+    ProgressBar progressBar;
+    TextView textMsg;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        myHandlerThread = new MyHandlerThread("myHandlerThread");
+        final Runnable myRunnable = new Runnable() {
+
+            @Override
+            public void run() {
+                for (int i = 0; i <= 10; i++) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    //is accessed from within inner class, needs to be declared final
+                    final int finalI = i;
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setProgress(finalI);
+                        }
+                    });
+                }
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        textMsg.setText("finished");
+                    }
+                });
+            }
+        };
+
+        myHandlerThread.start();
+        myHandlerThread.prepareHandler();
+
+        btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myHandlerThread.postTask(myRunnable);
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        myHandlerThread.quit();
+        super.onDestroy();
+    }
+
+    public class MyHandlerThread extends HandlerThread {
+
+        private Handler handler;
+
+        public MyHandlerThread(String name) {
+            super(name);
+        }
+
+        public void postTask(Runnable task){
+            handler.post(task);
+        }
+
+        public void prepareHandler(){
+            handler = new Handler(getLooper());
+        }
+    }
+}
+
+Q66)Which is fastest layout in Android?
+The way the Relative Layout works is “it measures each child twice”
+To explain this lets understand via code :
+
+<Relativelayout ...>
+<TextView .../>
+</RelativeLayout>
+
+Here the TextView would be measured twice while processing your UI during runtime which would take more time to display.
+Now if you have a complex view hierarchy this would take up a lot of time just measuring. And it can go worse if Nested Relative Layout is used, the already twice measured child of inner Relative Layout would be again measured twice by outer Relative Layout which becomes 4 times just for one view!
+So Linear Layout should preferred over Relative Layout!
+
+
+Q67)How RelativeLayout, LinearLayout, FrameLayout works? 
+Relative layout : The position of each view can be specified as relative to sibling elements or relative to the parent.
+LinearLayout : views are position linearly
+Frame layout : Frame Layout is designed to block out an area on the screen to display a single item.We can have many views.We can set position by setting android:layout_gravity like top,bottom
+
+
+Q68)What’s the purpose of ConstraintLayout?
+ConstraintLayout is almost like advanced version of relative layout.To set a button in the centre we create a constrain with top,left,bottom,right.Similarly with view we can do.
+Also this was introduced to use the Gui to create UI.
+
+
+
+
+ 
