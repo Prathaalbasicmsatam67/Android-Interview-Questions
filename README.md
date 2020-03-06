@@ -8,7 +8,7 @@
 
 Java, OOPs, Concurrency
 
-Difference between StringBuffer, StringBuilder and String.concat?
+Difference between StringBuffer, StringBuilder and String.concat? \n
 What is the difference between using == and equals on a string?
 What does the static word mean in Java?
 When is a static block run?
